@@ -29,7 +29,7 @@ def drop_piece(board, row, col, piece):
 	board[row][col] = piece
 
 def is_valid_location(board, col):
-	return board[ROW_COUNT-1][col] == 0
+	return col is not None and 0 <= col < COLUMN_COUNT and board[ROW_COUNT-1][col] == 0
 
 def get_next_open_row(board, col):
 	for r in range(ROW_COUNT):
@@ -239,13 +239,15 @@ while not game_over:
 
 		pygame.display.update()
 
-		if event.type == pygame.MOUSEBUTTONDOWN:
+		if event.type == pygame.MOUSEBUTTONDOWN and not game_over:
 			pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
 			#print(event.pos)
 			# Ask for Player 1 Input
 			if turn == PLAYER:
 				posx = event.pos[0]
 				col = int(math.floor(posx/SQUARESIZE))
+				if not is_valid_location(board, col):
+					continue
 
 				if is_valid_location(board, col):
 					row = get_next_open_row(board, col)
@@ -262,6 +264,11 @@ while not game_over:
 					print_board(board)
 					draw_board(board)
 
+
+	if not game_over and not get_valid_locations(board):
+		label = myfont.render("Draw!", 1, YELLOW)
+		screen.blit(label, (40,10))
+		game_over = True
 
 	# # Ask for Player 2 Input
 	if turn == AI and not game_over:				
@@ -285,6 +292,11 @@ while not game_over:
 
 			turn += 1
 			turn = turn % 2
+
+	if not game_over and not get_valid_locations(board):
+		label = myfont.render("Draw!", 1, YELLOW)
+		screen.blit(label, (40,10))
+		game_over = True
 
 	if game_over:
 		pygame.time.wait(3000)

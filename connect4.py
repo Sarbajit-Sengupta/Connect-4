@@ -19,7 +19,7 @@ def drop_piece(board, row, col, piece):
 	board[row][col] = piece
 
 def is_valid_location(board, col):
-	return board[ROW_COUNT-1][col] == 0
+	return col is not None and 0 <= col < COLUMN_COUNT and board[ROW_COUNT-1][col] == 0
 
 def get_next_open_row(board, col):
 	for r in range(ROW_COUNT):
@@ -106,13 +106,15 @@ while not game_over:
 				pygame.draw.circle(screen, YELLOW, (posx, int(SQUARESIZE/2)), RADIUS)
 		pygame.display.update()
 
-		if event.type == pygame.MOUSEBUTTONDOWN:
+		if event.type == pygame.MOUSEBUTTONDOWN and not game_over:
 			pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
 			#print(event.pos)
 			# Ask for Player 1 Input
 			if turn == 0:
 				posx = event.pos[0]
 				col = int(math.floor(posx/SQUARESIZE))
+				if not is_valid_location(board, col):
+					continue
 
 				if is_valid_location(board, col):
 					row = get_next_open_row(board, col)
@@ -128,6 +130,8 @@ while not game_over:
 			else:				
 				posx = event.pos[0]
 				col = int(math.floor(posx/SQUARESIZE))
+				if not is_valid_location(board, col):
+					continue
 
 				if is_valid_location(board, col):
 					row = get_next_open_row(board, col)
@@ -138,6 +142,10 @@ while not game_over:
 						screen.blit(label, (40,10))
 						game_over = True
 
+			if not game_over and all(board[ROW_COUNT-1][c] != 0 for c in range(COLUMN_COUNT)):
+				label = myfont.render("Draw!", 1, YELLOW)
+				screen.blit(label, (40,10))
+				game_over = True
 			print_board(board)
 			draw_board(board)
 
